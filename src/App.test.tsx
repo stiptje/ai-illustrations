@@ -1,36 +1,25 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, render, screen } from '@testing-library/react'
 import axe from 'axe-core'
 import { afterEach, describe, expect, it } from 'vitest'
 import App from './App'
 
-afterEach(() => {
-  cleanup()
-  window.history.replaceState({}, '', '/')
-})
+afterEach(cleanup)
 
-describe('AI Illustrations', () => {
-  it('opens the journey from the home page', () => {
+describe('AI illustrated story', () => {
+  it('shows the complete story without requiring phase navigation', () => {
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: /begin the journey/i }))
-    expect(screen.getByRole('heading', { name: /before there is data/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /how does an ai learn to talk/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /people make language/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /reply appears one piece at a time/i })).toBeInTheDocument()
   })
 
-  it('reveals the explanation after a myth verdict', () => {
-    window.history.replaceState({}, '', '/myth-reality')
+  it('shows myths and realities together', () => {
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: 'Myth' }))
-    expect(screen.getByText(/ordinary generation is not conventional document lookup/i)).toBeInTheDocument()
+    expect(screen.getByText('It stores every answer.')).toBeInTheDocument()
+    expect(screen.getByText('It learns patterns across many examples.')).toBeInTheDocument()
   })
 
-  it('filters the concept atlas', () => {
-    window.history.replaceState({}, '', '/concepts')
-    render(<App />)
-    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'softmax' } })
-    expect(screen.getByRole('heading', { name: 'Softmax' })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Vector' })).not.toBeInTheDocument()
-  })
-
-  it('has no automatically detectable accessibility violations on the home page', async () => {
+  it('has no automatically detectable accessibility violations', async () => {
     render(<App />)
     const results = await axe.run(document.body)
     expect(results.violations).toEqual([])
