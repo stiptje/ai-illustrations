@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">LLMs Illustrated</title>
+  <rect width="64" height="64" rx="17" fill="#6657d9"/>
+  <path d="M17 18h22a8 8 0 0 1 8 8v10a8 8 0 0 1-8 8H29l-9 7 2-7h-5a8 8 0 0 1-8-8V26a8 8 0 0 1 8-8Z" fill="#fffdf7"/>
+  <circle cx="21" cy="31" r="3.2" fill="#ed765d"/>
+  <circle cx="30" cy="31" r="3.2" fill="#f3c84b"/>
+  <circle cx="39" cy="31" r="3.2" fill="#3d9b78"/>
+</svg>

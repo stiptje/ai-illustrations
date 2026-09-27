@@ -3,14 +3,12 @@ import { useEffect, useState } from 'react'
 const tokens = ['The', 'moon', 'reflects', 'sunlight', '.']
 
 function Mark() {
-  return <span className="mark" aria-hidden="true">
-    <span className="mark-books"><i/><i/><i/></span><b>→</b><span className="mark-ai">AI</span><b>→</b><span className="mark-chat"><i/><i/></span>
-  </span>
+  return <img className="mark" src="/logo.svg" alt="" width="36" height="36"/>
 }
 
 function Header() {
   return <header className="topbar">
-    <a className="brand" href="#top"><Mark/><span>AI, illustrated</span></a>
+    <a className="brand" href="#top"><Mark/><span>LLMs Illustrated</span></a>
     <nav aria-label="On this page">
       <a href="#story">How it works</a>
       <a href="#myths">Myth / reality</a>
@@ -60,10 +58,23 @@ function VectorIllustration() {
     ['moon',60,26,'focus'],['sun',77,18,'warm'],['planet',47,16,''],['night',42,44,''],
     ['light',76,43,'warm'],['reflect',63,57,'focus'],['mirror',78,68,''],['banana',20,78,'far'],
   ]
-  return <div className="vector-scene visual" aria-label="Related ideas become nearby points in a numerical space">
-    <div className="orbit one"/><div className="orbit two"/>
-    {dots.map(([label,x,y,kind])=><span key={label} className={`vector-dot ${kind}`} style={{left:`${x}%`,top:`${y}%`}}>{label}</span>)}
-    <p>ideas used in similar ways gather near one another</p>
+  return <div className="vector-scene visual" aria-label="Words become vectors so the model can calculate relationships and context">
+    <div className="vector-number">
+      <small>1 · turn a token into coordinates</small>
+      <strong>moon</strong><b>→</b><code>[ 0.18, −0.72, 0.44, … ]</code>
+      <p>Computers can transform numbers. They cannot directly calculate with the idea “moon.”</p>
+    </div>
+    <div className="vector-map">
+      <small>2 · relationships become distance</small>
+      <div className="orbit one"/><div className="orbit two"/>
+      {dots.map(([label,x,y,kind])=><span key={label} className={`vector-dot ${kind}`} style={{left:`${x}%`,top:`${y}%`}}>{label}</span>)}
+      <p>similar uses → similar numerical patterns</p>
+    </div>
+    <div className="context-vectors">
+      <small>3 · context reshapes the coordinates</small>
+      <span><i>river</i> bank <b>→ land</b></span>
+      <span>bank <i>loan</i> <b>→ finance</b></span>
+    </div>
   </div>
 }
 
@@ -127,7 +138,7 @@ const stages = [
   { number:'02', kicker:'Collection', title:'Pages become digital text.', copy:'Printed pages can be scanned and read by software. Public or licensed digital material can be collected directly. At this point, the system is gathering examples—not understanding them.', Visual:CollectionIllustration },
   { number:'03', kicker:'Preparation', title:'The collection is cleaned.', copy:'Broken text, spam, repeated pages, and some sensitive material are removed. The remaining examples are organized into a very large training collection.', Visual:CleaningIllustration },
   { number:'04', kicker:'Translation for machines', title:'Sentences are cut into small pieces.', copy:'The model needs a limited set of reusable building blocks. A tokenizer therefore splits text into tokens: a common word may stay whole, an unusual word may become several pieces, and punctuation gets its own piece. Each token receives an ID so the model can turn it into numbers and process it.', Visual:TokenIllustration },
-  { number:'05', kicker:'Meaning as position', title:'Words become clouds of numbers.', copy:'Each token is turned into a list of numbers. During learning, words and ideas used in similar ways develop related numerical patterns.', Visual:VectorIllustration },
+  { number:'05', kicker:'Why vectors?', title:'Meaning becomes something the model can calculate with.', copy:'A token ID only names a vocabulary entry; it says nothing about how that token relates to others. The model therefore converts each token into a vector—a long list of coordinates. Those numbers let the network compare relationships, combine clues, and transform meaning through many layers. Similar uses develop similar patterns, while context continually reshapes the vector: “river bank” and “bank loan” begin with the same token but end with different contextual representations.', Visual:VectorIllustration },
   { number:'06', kicker:'Learning', title:'The model guesses, checks, and adjusts.', copy:'Again and again, the model tries to predict what comes next. A wrong guess produces an error signal. Millions of tiny adjustments slowly improve its predictions.', Visual:TrainingIllustration },
   { number:'07', kicker:'What remains', title:'Training produces a model—not a library.', copy:'What remains is an enormous network of adjusted numbers called weights. They hold learned patterns and relationships, not a neat shelf of complete answers.', Visual:ModelIllustration },
   { number:'08', kicker:'Using context', title:'Attention connects the clues.', copy:'A word alone is often ambiguous. Attention lets every token look across the sentence and give more weight to the clues that matter right now. This helps the model choose a meaning, connect a pronoun to what it refers to, and carry information across a long sentence.', Visual:AttentionIllustration },

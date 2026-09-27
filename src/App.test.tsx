@@ -8,9 +8,11 @@ afterEach(cleanup)
 describe('AI illustrated story', () => {
   it('shows the complete story without requiring phase navigation', () => {
     render(<App />)
+    expect(screen.getByRole('link', { name: /llms illustrated/i })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /how does an ai learn to talk/i })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /people make language/i })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /reply appears one piece at a time/i })).toBeInTheDocument()
+    expect(screen.getByText(/computers can transform numbers/i)).toBeInTheDocument()
   })
 
   it('shows myths and realities together', () => {
