@@ -12,7 +12,7 @@ describe('AI illustrated story', () => {
     expect(screen.getByRole('heading', { name: /how does an ai learn to talk/i })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /people make language/i })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /reply appears one piece at a time/i })).toBeInTheDocument()
-    expect(screen.getByText(/computers can transform numbers/i)).toBeInTheDocument()
+    expect(screen.getByText(/ids are only labels/i)).toBeInTheDocument()
   })
 
   it('shows myths and realities together', () => {

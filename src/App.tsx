@@ -59,10 +59,15 @@ function VectorIllustration() {
     ['light',76,43,'warm'],['reflect',63,57,'focus'],['mirror',78,68,''],['banana',20,78,'far'],
   ]
   return <div className="vector-scene visual" aria-label="Words become vectors so the model can calculate relationships and context">
+    <div className="why-vectors">
+      <small>Why not use words directly?</small>
+      <div><span>moon = token 10458</span><span>sunlight = token 18432</span><b>IDs are only labels. Their size and distance mean nothing.</b></div>
+      <strong>words <i>→</i> coordinates <i>→</i> comparisons and transformations</strong>
+    </div>
     <div className="vector-number">
-      <small>1 · turn a token into coordinates</small>
+      <small>1 · give each token useful coordinates</small>
       <strong>moon</strong><b>→</b><code>[ 0.18, −0.72, 0.44, … ]</code>
-      <p>Computers can transform numbers. They cannot directly calculate with the idea “moon.”</p>
+      <p>Now the network can mathematically compare, combine, and transform the token.</p>
     </div>
     <div className="vector-map">
       <small>2 · relationships become distance</small>
@@ -113,23 +118,34 @@ function AttentionIllustration() {
 }
 
 function ChatIllustration() {
-  const [active, setActive] = useState(0)
+  const question = 'Why can we see the Moon during the day?'
+  const [tick, setTick] = useState(0)
   useEffect(() => {
-    const timer = window.setInterval(() => setActive(value => (value + 1) % 4), 1000)
+    const total = question.length + 78
+    const timer = window.setInterval(() => setTick(value => (value + 1) % total), 90)
     return () => window.clearInterval(timer)
-  }, [])
+  }, [question.length])
+  const typedCount = Math.min(tick, question.length)
+  const generationTick = Math.max(0, tick - question.length)
+  const revealed = Math.min(3, Math.floor(generationTick / 22) + (generationTick > 2 ? 1 : 0))
+  const pulse = Math.floor(generationTick / 7) % 3
   const steps = [
-    {context:'Your question', choices:'The · Because · During', picked:'The'},
-    {context:'The', choices:'Moon · sky · reason', picked:'Moon'},
-    {context:'The Moon', choices:'is · looks · can', picked:'is'},
-    {context:'The Moon is', choices:'visible · bright · above', picked:'visible'},
+    { number:'1', context:'question only', prefix:'', choices:[['The',42],['Because',26],['During',11]], picked:'The' },
+    { number:'2', context:'question + “The”', prefix:'The', choices:[['Moon',61],['reason',14],['sky',9]], picked:'Moon' },
+    { number:'3', context:'question + “The Moon”', prefix:'The Moon', choices:[['is',74],['appears',12],['can',7]], picked:'is' },
   ]
-  return <div className="chat-scene visual" aria-label="A chatbot generates a reply one token at a time">
-    <div className="generation-question">Why can we see the Moon during the day?</div>
-    <div className="generation-ladder">{steps.map((step,i)=><div className={active===i?'active':''} key={step.context}>
-      <span>{i+1}</span><p><small>text so far</small>{step.context}</p><p><small>possible next pieces</small>{step.choices}</p><strong>+ {step.picked}</strong>
+  return <div className="chat-scene visual" aria-label="A chatbot types a question, calculates token probabilities, selects a token, and repeats with the longer context">
+    <div className="typing-scene">
+      <small>First, the user types a question</small>
+      <p>{question.slice(0,typedCount)}<i>{typedCount < question.length?'▌':''}</i></p>
+    </div>
+    <div className={`prompt-tokens ${typedCount===question.length?'visible':''}`}><small>The question is split into tokens</small><span>Why</span><span>can</span><span>we</span><span>see</span><span>the</span><span>Moon</span><span>during</span><span>the</span><span>day</span><span>?</span></div>
+    <div className="probability-steps">{steps.map((step,i)=><div className={`probability-step ${revealed>i?'revealed':''} ${revealed===i+1&&pulse===i?'calculating':''}`} key={step.number}>
+      <div className="step-context"><span>{step.number}</span><p><small>context sent through the model</small>{step.context}</p></div>
+      <div className="candidate-list"><small>possible next tokens</small>{step.choices.map(([word,value])=><div className={word===step.picked?'winner':''} key={word}><b>{word}</b><i><em style={{width:`${value}%`}}/></i><output>{value}%</output></div>)}</div>
+      <div className="selection"><small>selected, then added to context</small><strong>{step.prefix&&<span>{step.prefix} </span>}{step.picked}</strong><b>↓ calculate again</b></div>
     </div>)}</div>
-    <div className="generation-result" aria-live="polite">The Moon is visible <i>…and the cycle continues</i></div>
+    <div className="generation-result" aria-live="polite">The Moon is <i>…then repeat for token 4, token 5, and onward</i></div>
   </div>
 }
 
@@ -138,7 +154,7 @@ const stages = [
   { number:'02', kicker:'Collection', title:'Pages become digital text.', copy:'Printed pages can be scanned and read by software. Public or licensed digital material can be collected directly. At this point, the system is gathering examples—not understanding them.', Visual:CollectionIllustration },
   { number:'03', kicker:'Preparation', title:'The collection is cleaned.', copy:'Broken text, spam, repeated pages, and some sensitive material are removed. The remaining examples are organized into a very large training collection.', Visual:CleaningIllustration },
   { number:'04', kicker:'Translation for machines', title:'Sentences are cut into small pieces.', copy:'The model needs a limited set of reusable building blocks. A tokenizer therefore splits text into tokens: a common word may stay whole, an unusual word may become several pieces, and punctuation gets its own piece. Each token receives an ID so the model can turn it into numbers and process it.', Visual:TokenIllustration },
-  { number:'05', kicker:'Why vectors?', title:'Meaning becomes something the model can calculate with.', copy:'A token ID only names a vocabulary entry; it says nothing about how that token relates to others. The model therefore converts each token into a vector—a long list of coordinates. Those numbers let the network compare relationships, combine clues, and transform meaning through many layers. Similar uses develop similar patterns, while context continually reshapes the vector: “river bank” and “bank loan” begin with the same token but end with different contextual representations.', Visual:VectorIllustration },
+  { number:'05', kicker:'Why vectors?', title:'Meaning becomes something the model can calculate with.', copy:'A computer cannot multiply, compare, or gradually adjust the words “moon” and “sunlight” themselves. Token IDs do not solve this: 18432 is not more meaningful than 10458, and the gap between them says nothing about how the words relate. Vectors replace each label with many learned coordinates. This gives the network a mathematical space where it can measure useful relationships, mix information, and update a token according to context. That is the whole point: vectors turn language into a form the model can transform while preserving patterns of use.', Visual:VectorIllustration },
   { number:'06', kicker:'Learning', title:'The model guesses, checks, and adjusts.', copy:'Again and again, the model tries to predict what comes next. A wrong guess produces an error signal. Millions of tiny adjustments slowly improve its predictions.', Visual:TrainingIllustration },
   { number:'07', kicker:'What remains', title:'Training produces a model—not a library.', copy:'What remains is an enormous network of adjusted numbers called weights. They hold learned patterns and relationships, not a neat shelf of complete answers.', Visual:ModelIllustration },
   { number:'08', kicker:'Using context', title:'Attention connects the clues.', copy:'A word alone is often ambiguous. Attention lets every token look across the sentence and give more weight to the clues that matter right now. This helps the model choose a meaning, connect a pronoun to what it refers to, and carry information across a long sentence.', Visual:AttentionIllustration },
