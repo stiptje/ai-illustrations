@@ -15,13 +15,13 @@ describe('AI illustrated story', () => {
     expect(screen.getByText(/ids are only labels/i)).toBeInTheDocument()
   })
 
-  it('shows myths and realities together', () => {
+  it('reveals a deeper explanation after a myth vote', () => {
     render(<App />)
-    expect(screen.getByText('It stores every answer.')).toBeInTheDocument()
-    expect(screen.getByText('It learns patterns across many examples.')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /it stores every answer/i }))
-    expect(screen.getByText(/constructs a new continuation/i)).toBeInTheDocument()
-    expect(screen.getByText(/feels like a searchable archive/i)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Myth Busters' })).toBeInTheDocument()
+    expect(screen.getByText(/when i share personal data/i)).toBeInTheDocument()
+    fireEvent.click(screen.getAllByRole('button', { name: 'False' })[0])
+    expect(screen.getByText(/correct/i)).toBeInTheDocument()
+    expect(screen.getByText(/three mechanisms are easily confused/i)).toBeInTheDocument()
   })
 
   it('has no automatically detectable accessibility violations', async () => {

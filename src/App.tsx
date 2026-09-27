@@ -11,7 +11,7 @@ function Header() {
     <a className="brand" href="#top"><Mark/><span>LLMs Illustrated</span></a>
     <nav aria-label="On this page">
       <a href="#story">How it works</a>
-      <a href="#myths">Myth / reality</a>
+      <a href="#myths">Myth Busters</a>
     </nav>
   </header>
 }
@@ -162,23 +162,71 @@ const stages = [
 ]
 
 const myths = [
-  { myth:'It stores every answer.', reality:'It learns patterns across many examples.', happens:'Training repeatedly adjusts numerical weights. When asked a question, the model constructs a new continuation from those learned patterns; it does not normally retrieve a stored answer.', why:'It can repeat familiar phrases and facts so smoothly that it feels like a searchable archive.' },
-  { myth:'It searches the web every time.', reality:'Web search is a separate tool.', happens:'The language model can answer using its trained weights and the text in the current conversation. Some products can also call a search tool and place fresh webpages into that context.', why:'Search and generation are presented in one seamless chat window, so the boundary is easy to miss.' },
-  { myth:'It thinks exactly like a person.', reality:'It predicts language through numerical operations.', happens:'Tokens move through layers of learned mathematical transformations. The result can resemble reasoning, but the process differs greatly from a human body, brain, experience, and social life.', why:'Fluent first-person language automatically activates our social instinct to imagine a mind like ours.' },
-  { myth:'It learns from every chat instantly.', reality:'A normal chat does not retrain the model.', happens:'During a conversation, earlier messages remain in a temporary context and influence the next answer. Changing the underlying model requires a separate training process.', why:'Adapting to what you just said looks and feels like permanent learning.' },
-  { myth:'Confident means correct.', reality:'Fluent answers can still be wrong.', happens:'The model selects language that fits likely patterns. It does not automatically check every claim against evidence, so a polished sentence may contain an invented fact.', why:'With people, confidence and articulate speech often signal expertise. The same shortcut is unreliable for generated text.' },
-  { myth:'It works without people.', reality:'AI rests on a large human system.', happens:'Authors create the source material; workers prepare and evaluate data; engineers build systems; people manufacture chips, supply electricity, set rules, and decide where AI is used.', why:'The simple chat box hides the long chain of labor and infrastructure behind it.' },
+  {
+    claim:'When I share personal data with ChatGPT, it remembers me forever.',
+    verdict:'False. A conversation can be stored, but the model does not personally absorb your facts during an ordinary chat.',
+    why:'Later in the same chat it uses details you shared, and an optional memory feature may recall a note in a future conversation. Both feel like human memory.',
+    wouldTake:'The conversation would need to change the model’s weights through retraining. Doing that separately after every chat would be enormously expensive, unstable, and would require a different model for every user.',
+    actually:'Three mechanisms are easily confused: the context window resends earlier messages; a separate memory database can paste saved notes into a new chat; and some conversations may later enter a slow, filtered training process depending on product settings. The sharper privacy question is who stores the transcript, for how long, and who can access it.',
+  },
+  {
+    claim:'AI is a large archive of books with a search engine attached.',
+    verdict:'False. A language model contains learned numerical weights, not a searchable library of intact books.',
+    why:'It can discuss books, reproduce famous lines, and sometimes browse the web—exactly what we associate with a searchable archive.',
+    wouldTake:'An archive would keep texts intact, retrieve exact passages, and reliably identify their pages. It would not invent quotations or generate genuinely new combinations.',
+    actually:'Training compresses patterns across texts rather than filing every document. Frequently repeated passages may be memorized, but most answers are newly generated from learned regularities. When web search is available, a separate tool retrieves pages and pastes them into the model’s context.',
+  },
+  {
+    claim:'Engineers programmed its answers.',
+    verdict:'False. Engineers programmed the learning process; they did not write every answer.',
+    why:'Traditional software follows explicit instructions, and chatbot politeness or refusal formulas can sound scripted.',
+    wouldTake:'People would have to write rules for every possible question, phrasing, language, and situation. Earlier expert systems tried this and became brittle outside narrow domains.',
+    actually:'Engineers design the transformer and its training objective. The model then adjusts billions of weights while predicting text. Later, human examples, ratings, and guidelines shape behaviour indirectly—more like education than writing a script for each answer.',
+  },
+  {
+    claim:'ChatGPT is one mind talking to millions of people and learning from all of them in real time.',
+    verdict:'False. A fixed model runs in many separate sessions, and ordinary conversations do not update its weights.',
+    why:'Everyone encounters the same name and voice. Within one chat, rereading earlier messages looks like personal adaptation and learning.',
+    wouldTake:'Millions of simultaneous conversations would need to rewrite and synchronize the model continuously. Secrets and malicious instructions could then leak from one user into another user’s answers.',
+    actually:'After training, the model file is fixed. Each conversation runs that model with its own temporary context. Separate sessions do not share their chat contents, and correcting one response does not make the underlying model smarter for everyone.',
+  },
+  {
+    claim:'It reads words the way we do.',
+    verdict:'False. The model processes numbered tokens—often word fragments—not words and letters in the human sense.',
+    why:'Its input and output look like fluent language, and it can discuss spelling, poetry, and wordplay.',
+    wouldTake:'Reading every character separately would make sequences much longer and computation far more expensive, because the model compares positions throughout the sequence.',
+    actually:'A tokenizer divides text into common reusable chunks. “Unbelievable” might become “un” + “believ” + “able.” This helps explain difficulty with letter counting and spelling backwards. Languages represented by less online text may also be split into more tokens and cost more to process.',
+  },
+  {
+    claim:'It is just autocomplete, so it is trivial.',
+    verdict:'False—or at least deeply misleading. It predicts the next token, but doing that well can require rich internal representations.',
+    why:'Phone keyboards also predict the next word, so the label “autocomplete” makes the mechanism sound familiar and simple.',
+    wouldTake:'A trivial system would merely count common word sequences. It could not translate unfamiliar sentences, maintain an argument across pages, or produce functioning code for a new request.',
+    actually:'At very large scale, successful next-token prediction rewards models for representing grammar, facts, concepts, and relationships. “Autocomplete” describes the output procedure, not the depth of computation behind each prediction. Whether this constitutes understanding remains debated.',
+  },
+  {
+    claim:'AI detectors can tell whether a text was written by ChatGPT.',
+    verdict:'False. Detectors make uncertain statistical guesses; they cannot reliably prove authorship.',
+    why:'AI prose can have a recognizable smooth style, plagiarism detectors work well for copied passages, and percentage scores look authoritative.',
+    wouldTake:'Reliable proof would require a trace unique to AI text. Newly generated text has no stored original to match. Watermarks can help in limited cases, but paraphrasing, translation, and unwatermarked models weaken them.',
+    actually:'Most detectors measure predictability and uniformity. Formulaic human writing—especially writing by non-native speakers—can look equally predictable, producing false accusations. Detector scores are hints, not proof; drafts, notes, version history, and discussion with the writer are better evidence.',
+  },
 ]
 
 function MythGrid() {
-  const [open, setOpen] = useState<number | null>(null)
+  const [votes, setVotes] = useState<Record<number, 'true' | 'false'>>({})
   return <div className="myth-grid">{myths.map((item,i)=>{
-    const expanded = open === i
-    return <article className={expanded?'expanded':''} key={item.myth}>
-      <button onClick={()=>setOpen(expanded?null:i)} aria-expanded={expanded} aria-controls={`myth-detail-${i}`}>
-        <span>{String(i+1).padStart(2,'0')}</span><span className="myth"><s>{item.myth}</s></span><span className="reality">{item.reality}</span><i>{expanded?'−':'+'}</i>
-      </button>
-      {expanded&&<div className="myth-detail" id={`myth-detail-${i}`}><p><b>What really happens</b>{item.happens}</p><p><b>Why this myth spreads</b>{item.why}</p></div>}
+    const vote = votes[i]
+    return <article className={`buster-card ${vote?'answered':''}`} key={item.claim}>
+      <div className="buster-question"><span>{String(i+1).padStart(2,'0')}</span><p>“{item.claim}”</p></div>
+      <div className="vote-row" role="group" aria-label={`Vote on myth ${i+1}`}>
+        <button className={vote==='true'?'selected':''} onClick={()=>setVotes(current=>({...current,[i]:'true'}))} aria-pressed={vote==='true'}>True</button>
+        <button className={vote==='false'?'selected':''} onClick={()=>setVotes(current=>({...current,[i]:'false'}))} aria-pressed={vote==='false'}>False</button>
+      </div>
+      {vote&&<div className="buster-detail" aria-live="polite">
+        <div className={`vote-result ${vote==='false'?'correct':'incorrect'}`}><span>{vote==='false'?'✓ Correct':'✕ Not quite'}</span><strong>{item.verdict}</strong></div>
+        <div className="buster-explanations"><p><b>Why it feels true</b>{item.why}</p><p><b>What it would take</b>{item.wouldTake}</p><p><b>What is actually happening</b>{item.actually}</p></div>
+      </div>}
     </article>
   })}</div>
 }
@@ -219,7 +267,7 @@ export default function App() {
       </section>
 
       <section className="myths" id="myths">
-        <header><p className="eyebrow">Myth / reality</p><h2>Six myths</h2><p>Open any myth to see what really happens—and why the misconception is so persuasive.</p></header>
+        <header><p className="eyebrow">True or false?</p><h2>Myth Busters</h2><p>Vote before revealing the answer. Each result explains why the claim feels convincing and what is actually happening.</p></header>
         <MythGrid/>
       </section>
 
