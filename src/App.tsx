@@ -161,7 +161,17 @@ const stages = [
   { number:'09', kicker:'Your conversation', title:'A reply appears one piece at a time.', copy:'The model reads your prompt and ranks possible first tokens. It selects one, joins it to the text, then runs the calculation again with the longer text. The answer grows one token at a time: “The” → “The Moon” → “The Moon is” → “The Moon is visible”…', Visual:ChatIllustration },
 ]
 
-const myths = [
+type Myth = {
+  claim: string
+  verdict: string
+  why: string
+  wouldTake: string
+  actually: string
+  caseTitle?: string
+  sources?: { label: string; url: string }[]
+}
+
+const myths: Myth[] = [
   {
     claim:'When I share personal data with ChatGPT, it remembers me forever.',
     verdict:'False. A conversation can be stored, but the model does not personally absorb your facts during an ordinary chat.',
@@ -205,11 +215,17 @@ const myths = [
     actually:'At very large scale, successful next-token prediction rewards models for representing grammar, facts, concepts, and relationships. “Autocomplete” describes the output procedure, not the depth of computation behind each prediction. Whether this constitutes understanding remains debated.',
   },
   {
-    claim:'AI detectors can tell whether a text was written by ChatGPT.',
-    verdict:'False. Detectors make uncertain statistical guesses; they cannot reliably prove authorship.',
-    why:'AI prose can have a recognizable smooth style, plagiarism detectors work well for copied passages, and percentage scores look authoritative.',
-    wouldTake:'Reliable proof would require a trace unique to AI text. Newly generated text has no stored original to match. Watermarks can help in limited cases, but paraphrasing, translation, and unwatermarked models weaken them.',
-    actually:'Most detectors measure predictability and uniformity. Formulaic human writing—especially writing by non-native speakers—can look equally predictable, producing false accusations. Detector scores are hints, not proof; drafts, notes, version history, and discussion with the writer are better evidence.',
+    claim:'AI will never be able to write real literature.',
+    verdict:'False—or at least already very hard to defend. Producing admired prose and being an author are different questions.',
+    why:'Literature seems to require lived experience, suffering, intention, and a unique voice—things a model does not possess. Early chatbot prose was also bland and easy to spot. We may want the claim to be true because creativity feels like the last thing that is ours alone.',
+    wouldTake:'There would have to be something in great writing that cannot be learned from text: a mark of lived experience visible on the page. Expert readers would then need to distinguish human prose from machine prose reliably. But rhythm, imagery, repetition, and even the impression of a voice are patterns in the text itself—the very material models learn from.',
+    caseTitle:'The Goncourt affair · September 2026',
+    actually:'C’était ça ou mourir, the debut novel of Canadian-Haitian writer Thélyson Orélien, won the Prix du roman Fnac and appeared on the first lists of several major French literary prizes. After allegations of plagiarism and AI use, the Académie Goncourt removed it from its selection. Orélien denies using AI, says he drafted the novel between 2017 and 2019, and attributes its voice to Haitian and Caribbean oral traditions; his publisher supports him. As of 28 September 2026, the dispute remains unresolved. AFP checked the same passages with eight detection systems and received sharply contradictory results—from “very likely human” to “100% AI,” with other scores varying by passage. If AI wrote it, machine-produced prose impressed editors, critics, and prize juries. If Orélien wrote it, professional readers and detection tools still could not reliably distinguish his prose from a machine’s. The deeper question is therefore not only “can AI produce good text?” but “what makes a text literature?” Is meaning in the words on the page, in the person behind them, or in the relation between the two?',
+    sources:[
+      { label:'Prix du roman Fnac', url:'https://www.fnac.com/prix-du-roman-fnac' },
+      { label:'Goncourt decision', url:'https://js.livreshebdo.fr/article/lacademie-goncourt-retire-thelyson-orelien-de-sa-selection' },
+      { label:'AFP detector comparison', url:'https://agerpres.ro/cultura/2026/09/22/scriitorul-thelyson-orelien-premiat-recent-in-franta-acuzat-ca-a-utilizat-ai--1596015' },
+    ],
   },
 ]
 
@@ -225,7 +241,15 @@ function MythGrid() {
       </div>
       {vote&&<div className="buster-detail" aria-live="polite">
         <div className={`vote-result ${vote==='false'?'correct':'incorrect'}`}><span>{vote==='false'?'✓ Correct':'✕ Not quite'}</span><strong>{item.verdict}</strong></div>
-        <div className="buster-explanations"><p><b>Why it feels true</b>{item.why}</p><p><b>What it would take</b>{item.wouldTake}</p><p><b>What is actually happening</b>{item.actually}</p></div>
+        <div className="buster-explanations">
+          <p><b>Why it feels true</b>{item.why}</p>
+          <p><b>What it would take</b>{item.wouldTake}</p>
+          <div className="buster-reality">
+            <b>{item.caseTitle ?? 'What is actually happening'}</b>
+            <p>{item.actually}</p>
+            {item.sources&&<div className="buster-sources"><span>Sources</span>{item.sources.map(source=><a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.label}</a>)}</div>}
+          </div>
+        </div>
       </div>}
     </article>
   })}</div>
