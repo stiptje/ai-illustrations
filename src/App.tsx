@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 
 const tokens = ['The', 'moon', 'reflects', 'sunlight', '.']
-const reply = ['The', 'Moon', 'is', 'visible', 'in', 'daylight', 'because', 'it', 'reflects', 'sunlight', '.']
 
 function Mark() {
-  return <span className="mark" aria-hidden="true"><i/><i/><i/><i/><i/><i/><i/><i/><i/></span>
+  return <span className="mark" aria-hidden="true">
+    <span className="mark-books"><i/><i/><i/></span><b>→</b><span className="mark-ai">AI</span><b>→</b><span className="mark-chat"><i/><i/></span>
+  </span>
 }
 
 function Header() {
@@ -49,8 +50,8 @@ function TokenIllustration() {
   return <div className="token-scene visual" aria-label="A sentence is split into tokens and represented as numbers">
     <p>“The moon reflects sunlight.”</p>
     <div className="token-row">{tokens.map((token,i)=><span key={token}><b>{token}</b><small>{[791,10458,22901,18432,13][i]}</small></span>)}</div>
-    <div className="down-arrow">↓</div>
-    <div className="number-ribbon">numbers the model can process</div>
+    <div className="token-key"><span><b>whole word</b> moon</span><span><b>word piece</b> reflect + s</span><span><b>mark</b> .</span></div>
+    <div className="number-ribbon">a small reusable vocabulary can build almost any text</div>
   </div>
 }
 
@@ -69,15 +70,14 @@ function VectorIllustration() {
 function TrainingIllustration() {
   return <div className="training-scene visual" aria-label="The network predicts a missing word, checks the error, and adjusts">
     <div className="sentence-card">The cat sat on the <b>?</b></div>
-    <div className="guess-bars">
-      <span><b>mat</b><i style={{width:'76%'}}/><em>76%</em></span>
-      <span><b>roof</b><i style={{width:'17%'}}/><em>17%</em></span>
-      <span><b>idea</b><i style={{width:'7%'}}/><em>7%</em></span>
+    <div className="training-round wrong">
+      <small>early attempt</small><strong>roof</strong><b>✕ wrong</b><span>the real next word was “mat”</span>
     </div>
-    <div className="learning-loop"><span>guess</span><b>→</b><span>check</span><b>→</b><span>adjust</span><b>↻</b></div>
-    <div className="network" aria-hidden="true">
-      <div>{[0,1,2].map(i=><i key={i}/>)}</div><svg viewBox="0 0 160 120" preserveAspectRatio="none"><path d="M0 18L160 20M0 18L160 60M0 18L160 100M0 60L160 20M0 60L160 60M0 60L160 100M0 102L160 20M0 102L160 60M0 102L160 100"/></svg><div>{[0,1,2].map(i=><i key={i}/>)}</div>
+    <div className="adjustment"><i>error</i><b>→</b><span>nudge many internal numbers a tiny amount</span><b>→</b><i>try again</i></div>
+    <div className="training-round right">
+      <small>after many adjustments</small><strong>mat</strong><b>✓ better</b><span>“mat” now receives the highest probability</span>
     </div>
+    <div className="weight-dots" aria-hidden="true">{Array.from({length:18},(_,i)=><i key={i}/>)}</div>
   </div>
 }
 
@@ -91,31 +91,34 @@ function ModelIllustration() {
 
 function AttentionIllustration() {
   return <div className="attention-scene visual" aria-label="Attention lets each word use clues from other words">
-    <p>“She sat by the river bank.”</p>
-    <svg viewBox="0 0 700 210" role="img" aria-label="Curved lines connect the word bank strongly to river">
-      <path className="faint" d="M65 170Q350 5 622 170"/><path d="M280 170Q450 35 622 170"/><path className="mid" d="M420 170Q520 85 622 170"/>
-    </svg>
-    <div className="attention-words"><span>She</span><span>sat</span><span>by</span><span>the</span><span className="clue">river</span><span className="focus">bank</span></div>
-    <strong>“river” tells the model which meaning of “bank” fits</strong>
+    <div className="attention-intro"><span>Each word asks:</span><strong>Which other words help me understand my job here?</strong></div>
+    <div className="attention-examples">
+      <div><small>meaning</small><p>They sat on the <mark>river</mark> <b>bank</b>.</p><span>bank = land beside water</span></div>
+      <div><small>meaning</small><p>She asked the <mark>bank</mark> for a <b>loan</b>.</p><span>bank = financial institution</span></div>
+      <div><small>reference</small><p>The <mark>animal</mark> stopped because <b>it</b> was tired.</p><span>“it” points back to animal</span></div>
+    </div>
+    <div className="attention-link"><i/><b>attention strengthens useful connections and weakens irrelevant ones</b><i/></div>
   </div>
 }
 
 function ChatIllustration() {
-  const [visible, setVisible] = useState(1)
+  const [active, setActive] = useState(0)
   useEffect(() => {
-    const timer = window.setInterval(() => setVisible(value => value >= reply.length ? 1 : value + 1), 430)
+    const timer = window.setInterval(() => setActive(value => (value + 1) % 4), 1000)
     return () => window.clearInterval(timer)
   }, [])
+  const steps = [
+    {context:'Your question', choices:'The · Because · During', picked:'The'},
+    {context:'The', choices:'Moon · sky · reason', picked:'Moon'},
+    {context:'The Moon', choices:'is · looks · can', picked:'is'},
+    {context:'The Moon is', choices:'visible · bright · above', picked:'visible'},
+  ]
   return <div className="chat-scene visual" aria-label="A chatbot generates a reply one token at a time">
-    <div className="chat-window">
-      <div className="user-message">Why can we see the Moon during the day?</div>
-      <div className="assistant-message" aria-live="polite">{reply.slice(0,visible).join(' ')}<i>▌</i></div>
-    </div>
-    <div className="next-word">
-      <small>next word possibilities</small>
-      <span><b style={{width:'68%'}}/>because</span><span><b style={{width:'22%'}}/>when</span><span><b style={{width:'10%'}}/>although</span>
-    </div>
-    <p>choose one piece → add it to the sentence → repeat</p>
+    <div className="generation-question">Why can we see the Moon during the day?</div>
+    <div className="generation-ladder">{steps.map((step,i)=><div className={active===i?'active':''} key={step.context}>
+      <span>{i+1}</span><p><small>text so far</small>{step.context}</p><p><small>possible next pieces</small>{step.choices}</p><strong>+ {step.picked}</strong>
+    </div>)}</div>
+    <div className="generation-result" aria-live="polite">The Moon is visible <i>…and the cycle continues</i></div>
   </div>
 }
 
@@ -123,22 +126,35 @@ const stages = [
   { number:'01', kicker:'The raw material', title:'People make language.', copy:'Long before AI, people write books, publish websites, create code, tell stories, and answer questions. These human-made materials are the starting point.', Visual:SourceIllustration },
   { number:'02', kicker:'Collection', title:'Pages become digital text.', copy:'Printed pages can be scanned and read by software. Public or licensed digital material can be collected directly. At this point, the system is gathering examples—not understanding them.', Visual:CollectionIllustration },
   { number:'03', kicker:'Preparation', title:'The collection is cleaned.', copy:'Broken text, spam, repeated pages, and some sensitive material are removed. The remaining examples are organized into a very large training collection.', Visual:CleaningIllustration },
-  { number:'04', kicker:'Translation for machines', title:'Sentences are cut into small pieces.', copy:'The model does not receive a sentence exactly as we see it. Text is split into tokens—often words or pieces of words—and each token gets a number.', Visual:TokenIllustration },
+  { number:'04', kicker:'Translation for machines', title:'Sentences are cut into small pieces.', copy:'The model needs a limited set of reusable building blocks. A tokenizer therefore splits text into tokens: a common word may stay whole, an unusual word may become several pieces, and punctuation gets its own piece. Each token receives an ID so the model can turn it into numbers and process it.', Visual:TokenIllustration },
   { number:'05', kicker:'Meaning as position', title:'Words become clouds of numbers.', copy:'Each token is turned into a list of numbers. During learning, words and ideas used in similar ways develop related numerical patterns.', Visual:VectorIllustration },
   { number:'06', kicker:'Learning', title:'The model guesses, checks, and adjusts.', copy:'Again and again, the model tries to predict what comes next. A wrong guess produces an error signal. Millions of tiny adjustments slowly improve its predictions.', Visual:TrainingIllustration },
   { number:'07', kicker:'What remains', title:'Training produces a model—not a library.', copy:'What remains is an enormous network of adjusted numbers called weights. They hold learned patterns and relationships, not a neat shelf of complete answers.', Visual:ModelIllustration },
-  { number:'08', kicker:'Using context', title:'Attention connects the clues.', copy:'When a sentence has several possible meanings, the model weighs nearby clues. “River” makes one meaning of “bank” much more useful than the others.', Visual:AttentionIllustration },
-  { number:'09', kicker:'Your conversation', title:'A reply appears one piece at a time.', copy:'Your prompt passes through the trained model. It estimates possible next tokens, selects one, adds it to the text, and repeats until the reply is complete.', Visual:ChatIllustration },
+  { number:'08', kicker:'Using context', title:'Attention connects the clues.', copy:'A word alone is often ambiguous. Attention lets every token look across the sentence and give more weight to the clues that matter right now. This helps the model choose a meaning, connect a pronoun to what it refers to, and carry information across a long sentence.', Visual:AttentionIllustration },
+  { number:'09', kicker:'Your conversation', title:'A reply appears one piece at a time.', copy:'The model reads your prompt and ranks possible first tokens. It selects one, joins it to the text, then runs the calculation again with the longer text. The answer grows one token at a time: “The” → “The Moon” → “The Moon is” → “The Moon is visible”…', Visual:ChatIllustration },
 ]
 
 const myths = [
-  ['It stores every answer.', 'It learns patterns across many examples.'],
-  ['It searches the web every time.', 'Web search is a separate tool that may or may not be connected.'],
-  ['It thinks exactly like a person.', 'It predicts language through numerical operations.'],
-  ['It learns from every chat instantly.', 'A normal chat uses the model; it does not retrain it.'],
-  ['Confident means correct.', 'A fluent answer can still be mistaken or invented.'],
-  ['It works without people.', 'Human writing, decisions, feedback, chips, and energy make it possible.'],
+  { myth:'It stores every answer.', reality:'It learns patterns across many examples.', happens:'Training repeatedly adjusts numerical weights. When asked a question, the model constructs a new continuation from those learned patterns; it does not normally retrieve a stored answer.', why:'It can repeat familiar phrases and facts so smoothly that it feels like a searchable archive.' },
+  { myth:'It searches the web every time.', reality:'Web search is a separate tool.', happens:'The language model can answer using its trained weights and the text in the current conversation. Some products can also call a search tool and place fresh webpages into that context.', why:'Search and generation are presented in one seamless chat window, so the boundary is easy to miss.' },
+  { myth:'It thinks exactly like a person.', reality:'It predicts language through numerical operations.', happens:'Tokens move through layers of learned mathematical transformations. The result can resemble reasoning, but the process differs greatly from a human body, brain, experience, and social life.', why:'Fluent first-person language automatically activates our social instinct to imagine a mind like ours.' },
+  { myth:'It learns from every chat instantly.', reality:'A normal chat does not retrain the model.', happens:'During a conversation, earlier messages remain in a temporary context and influence the next answer. Changing the underlying model requires a separate training process.', why:'Adapting to what you just said looks and feels like permanent learning.' },
+  { myth:'Confident means correct.', reality:'Fluent answers can still be wrong.', happens:'The model selects language that fits likely patterns. It does not automatically check every claim against evidence, so a polished sentence may contain an invented fact.', why:'With people, confidence and articulate speech often signal expertise. The same shortcut is unreliable for generated text.' },
+  { myth:'It works without people.', reality:'AI rests on a large human system.', happens:'Authors create the source material; workers prepare and evaluate data; engineers build systems; people manufacture chips, supply electricity, set rules, and decide where AI is used.', why:'The simple chat box hides the long chain of labor and infrastructure behind it.' },
 ]
+
+function MythGrid() {
+  const [open, setOpen] = useState<number | null>(null)
+  return <div className="myth-grid">{myths.map((item,i)=>{
+    const expanded = open === i
+    return <article className={expanded?'expanded':''} key={item.myth}>
+      <button onClick={()=>setOpen(expanded?null:i)} aria-expanded={expanded} aria-controls={`myth-detail-${i}`}>
+        <span>{String(i+1).padStart(2,'0')}</span><span className="myth"><s>{item.myth}</s></span><span className="reality">{item.reality}</span><i>{expanded?'−':'+'}</i>
+      </button>
+      {expanded&&<div className="myth-detail" id={`myth-detail-${i}`}><p><b>What really happens</b>{item.happens}</p><p><b>Why this myth spreads</b>{item.why}</p></div>}
+    </article>
+  })}</div>
+}
 
 export default function App() {
   return <div className="app" id="top">
@@ -176,8 +192,8 @@ export default function App() {
       </section>
 
       <section className="myths" id="myths">
-        <header><p className="eyebrow">Myth / reality</p><h2>Six shortcuts that lead us astray</h2></header>
-        <div className="myth-grid">{myths.map(([myth,reality],i)=><article key={myth}><span>{String(i+1).padStart(2,'0')}</span><p className="myth"><s>{myth}</s></p><p className="reality">{reality}</p></article>)}</div>
+        <header><p className="eyebrow">Myth / reality</p><h2>Six myths</h2><p>Open any myth to see what really happens—and why the misconception is so persuasive.</p></header>
+        <MythGrid/>
       </section>
 
       <section className="ending">

@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import axe from 'axe-core'
 import { afterEach, describe, expect, it } from 'vitest'
 import App from './App'
@@ -17,6 +17,9 @@ describe('AI illustrated story', () => {
     render(<App />)
     expect(screen.getByText('It stores every answer.')).toBeInTheDocument()
     expect(screen.getByText('It learns patterns across many examples.')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /it stores every answer/i }))
+    expect(screen.getByText(/constructs a new continuation/i)).toBeInTheDocument()
+    expect(screen.getByText(/feels like a searchable archive/i)).toBeInTheDocument()
   })
 
   it('has no automatically detectable accessibility violations', async () => {
