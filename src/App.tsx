@@ -164,9 +164,10 @@ const stages = [
 type Myth = {
   claim: string
   verdict: string
-  why: string
-  wouldTake: string
-  actually: string
+  why: string[]
+  wouldTake: string[]
+  actually: string[]
+  visual: 'memory' | 'archive' | 'programmed' | 'one-mind' | 'tokens' | 'autocomplete' | 'literature'
   caseTitle?: string
   sources?: { label: string; url: string }[]
 }
@@ -174,53 +175,134 @@ type Myth = {
 const myths: Myth[] = [
   {
     claim:'When I share personal data with ChatGPT, it remembers me forever.',
-    verdict:'False. A conversation can be stored, but the model does not personally absorb your facts during an ordinary chat.',
-    why:'Later in the same chat it uses details you shared, and an optional memory feature may recall a note in a future conversation. Both feel like human memory.',
-    wouldTake:'The conversation would need to change the model’s weights through retraining. Doing that separately after every chat would be enormously expensive, unstable, and would require a different model for every user.',
-    actually:'Three mechanisms are easily confused: the context window resends earlier messages; a separate memory database can paste saved notes into a new chat; and some conversations may later enter a slow, filtered training process depending on product settings. The sharper privacy question is who stores the transcript, for how long, and who can access it.',
+    verdict:'False. What you type does not simply enter the model’s “mind.” It can be kept in three different places, each with different rules.',
+    why:[
+      'Later in the same chat, it uses your name and details you gave earlier. With an optional memory feature, it may even recall your job in a later conversation. That feels like talking to a person—and people remember what we tell them.',
+      'But several different computer mechanisms can create the same feeling. “The chatbot remembers” is therefore an impression, not yet an explanation.',
+    ],
+    wouldTake:[
+      'For the model itself to remember you, your conversation would have to change its internal weights. That means retraining the model, not merely saving a sentence.',
+      'Training leading models is done in enormous batches and costs vast amounts of time and computing power. Retraining after every chat would be impractical, could damage earlier learning, and would effectively require a different model for every user.',
+    ],
+    actually:[
+      'Short-term context: when you send a new message, earlier parts of the conversation are sent to the model again. It “remembers” because it rereads them. A new chat normally begins without that conversation.',
+      'Saved memory: a separate system can store a short note such as “teaches theology in Leuven” and insert it into a later chat. The model reads the note; the note is not stored inside the model’s weights.',
+      'Future training: depending on the product and your settings, some conversations may later be filtered and included in a much larger training process. This is slow, indirect, and diluted among enormous amounts of other text.',
+      'The more useful privacy question is therefore: who stores the transcript, for how long, for what purpose, and who can access it?',
+    ],
+    visual:'memory',
   },
   {
     claim:'AI is a large archive of books with a search engine attached.',
-    verdict:'False. A language model contains learned numerical weights, not a searchable library of intact books.',
-    why:'It can discuss books, reproduce famous lines, and sometimes browse the web—exactly what we associate with a searchable archive.',
-    wouldTake:'An archive would keep texts intact, retrieve exact passages, and reliably identify their pages. It would not invent quotations or generate genuinely new combinations.',
-    actually:'Training compresses patterns across texts rather than filing every document. Frequently repeated passages may be memorized, but most answers are newly generated from learned regularities. When web search is available, a separate tool retrieves pages and pastes them into the model’s context.',
+    verdict:'False. A language model is not a shelf of intact books. It is a large collection of learned numerical relationships.',
+    why:[
+      'It can discuss thousands of books, reproduce famous lines, and answer detailed questions. The familiar machine that does this is a search engine looking through a library, so that is the picture we naturally reach for.',
+      'Many chatbots can now also search the web and show links. That makes two very different operations—generating from a model and retrieving from a database—look like one thing.',
+    ],
+    wouldTake:[
+      'A real archive stores documents intact. It finds an existing passage, returns the exact words, and can identify the source and page. A language model was trained on far more text than could fit verbatim inside its model file.',
+      'A search engine can only retrieve something that already exists. It does not normally invent a new sonnet about your cat. A true archive would also not fabricate a plausible quotation or a book that was never written.',
+    ],
+    actually:[
+      'Training compresses recurring patterns across many texts rather than filing every document. A useful analogy is a widely read person: they may discuss many books without being able to reproduce page 43 exactly.',
+      'Some very frequent passages can be memorized almost word for word. That is why a model can sometimes appear to be looking up a stored text—and why memorization remains an important concern.',
+      'When a chatbot searches the web, a separate search tool retrieves pages and places relevant excerpts into the conversation. The model then writes from those excerpts. The library and the writer are separate parts of the system.',
+    ],
+    visual:'archive',
   },
   {
     claim:'Engineers programmed its answers.',
-    verdict:'False. Engineers programmed the learning process; they did not write every answer.',
-    why:'Traditional software follows explicit instructions, and chatbot politeness or refusal formulas can sound scripted.',
-    wouldTake:'People would have to write rules for every possible question, phrasing, language, and situation. Earlier expert systems tried this and became brittle outside narrow domains.',
-    actually:'Engineers design the transformer and its training objective. The model then adjusts billions of weights while predicting text. Later, human examples, ratings, and guidelines shape behaviour indirectly—more like education than writing a script for each answer.',
+    verdict:'False. Engineers programmed the learning procedure; they did not write the model’s millions of possible answers.',
+    why:[
+      'Most familiar software follows explicit instructions written by programmers. Early “expert systems” worked this way too, using thousands of hand-written if–then rules. Chatbot greetings, refusals, and polite formulas can also sound prewritten.',
+      'So when an answer appears on screen, it is natural to imagine a hidden rule or a person-written script behind it.',
+    ],
+    wouldTake:[
+      'Someone would have to write a rule for every possible question, every phrasing, every language, and every situation. Ordinary language is too open and context-dependent for that.',
+      'Earlier expert systems reached this wall: they could work in a narrow domain, but became brittle as soon as the situation changed. Gathering enough rules from experts was itself a major bottleneck.',
+    ],
+    actually:[
+      'Engineers design an architecture and give it a learning task: predict the next piece of text. During training, the system makes predictions, measures its errors, and automatically adjusts billions of internal numbers called weights.',
+      'A later stage shapes behaviour. People provide examples, compare answers, and write guidelines. These human choices influence the model indirectly—more like education than scripting every sentence.',
+      'One surprising consequence is that even the builders cannot fully explain every individual answer. The field called interpretability tries to understand what the learned internal machinery is doing.',
+    ],
+    visual:'programmed',
   },
   {
     claim:'ChatGPT is one mind talking to millions of people and learning from all of them in real time.',
-    verdict:'False. A fixed model runs in many separate sessions, and ordinary conversations do not update its weights.',
-    why:'Everyone encounters the same name and voice. Within one chat, rereading earlier messages looks like personal adaptation and learning.',
-    wouldTake:'Millions of simultaneous conversations would need to rewrite and synchronize the model continuously. Secrets and malicious instructions could then leak from one user into another user’s answers.',
-    actually:'After training, the model file is fixed. Each conversation runs that model with its own temporary context. Separate sessions do not share their chat contents, and correcting one response does not make the underlying model smarter for everyone.',
+    verdict:'False. One trained model can power many separate conversations, but those conversations do not merge into a single live stream of thought.',
+    why:[
+      'Everyone encounters the same name, interface, and recognisable voice, so “ChatGPT said” sounds like one person speaking. Within one chat, the replies adapt to what you wrote earlier, which looks like learning.',
+      'Science fiction strengthens the image of one central machine mind watching and talking to everyone at once.',
+    ],
+    wouldTake:[
+      'The model’s weights would need to update after every message from millions of users, while all the copies running across data centres stayed synchronized.',
+      'Secrets from one conversation could then enter another person’s answers, and malicious users could immediately corrupt the system. Microsoft’s Tay chatbot illustrated the danger in 2016 when coordinated users rapidly pushed it toward offensive output.',
+    ],
+    actually:[
+      'After training, the model is normally fixed. The same trained file can be run many times, much as many people can run separate copies of the same app.',
+      'Each conversation has its own temporary context. Its apparent adaptation comes mainly from rereading that conversation, not from rewriting the shared model.',
+      'Correcting one answer does not instantly make the underlying model smarter for everybody. A changed model appears later only after its creators train or update a new version. This leaves a useful philosophical question: is “ChatGPT” the model file, one running instance, or the particular conversation between you and it?',
+    ],
+    visual:'one-mind',
   },
   {
     claim:'It reads words the way we do.',
-    verdict:'False. The model processes numbered tokens—often word fragments—not words and letters in the human sense.',
-    why:'Its input and output look like fluent language, and it can discuss spelling, poetry, and wordplay.',
-    wouldTake:'Reading every character separately would make sequences much longer and computation far more expensive, because the model compares positions throughout the sequence.',
-    actually:'A tokenizer divides text into common reusable chunks. “Unbelievable” might become “un” + “believ” + “able.” This helps explain difficulty with letter counting and spelling backwards. Languages represented by less online text may also be split into more tokens and cost more to process.',
+    verdict:'False. The model receives tokens—numbered chunks of text—not words and letters in the human sense.',
+    why:[
+      'Its input and output look like fluent language. It can discuss spelling, puns, rhyme, and poetry, so we assume that it sees the same words and letters that we see.',
+      'The interface hides the translation step. By the time text reaches the neural network, the visible sentence has already been cut into pieces and converted into numbers.',
+    ],
+    wouldTake:[
+      'Processing every character separately would make a text several times longer. Because the model compares positions throughout the sequence, longer input means substantially more computation.',
+      'Character-level models do exist, but token chunks are usually a more efficient compromise: a small reusable vocabulary can represent almost any text without treating every letter as a separate step.',
+    ],
+    actually:[
+      'A tokenizer splits frequent text into reusable fragments. A common word may be one token, while “unbelievable” might become “un” + “believ” + “able.” Each token receives an ID and then a vector of learned numbers.',
+      'This helps explain odd failures such as counting letters in “strawberry,” spelling a word backwards, or reasoning about the exact shape of a word. The system is often working with chunks rather than inspecting each letter directly.',
+      'There is also a fairness issue. Languages represented by less online text may be broken into more tokens per sentence, which can increase cost and reduce the amount of context the model can handle.',
+    ],
+    visual:'tokens',
   },
   {
     claim:'It is just autocomplete, so it is trivial.',
-    verdict:'False—or at least deeply misleading. It predicts the next token, but doing that well can require rich internal representations.',
-    why:'Phone keyboards also predict the next word, so the label “autocomplete” makes the mechanism sound familiar and simple.',
-    wouldTake:'A trivial system would merely count common word sequences. It could not translate unfamiliar sentences, maintain an argument across pages, or produce functioning code for a new request.',
-    actually:'At very large scale, successful next-token prediction rewards models for representing grammar, facts, concepts, and relationships. “Autocomplete” describes the output procedure, not the depth of computation behind each prediction. Whether this constitutes understanding remains debated.',
+    verdict:'False—or deeply misleading. It does predict the next token, but doing that well across human language is not a trivial task.',
+    why:[
+      'The description is technically accurate: a language model produces one token at a time. The autocomplete on a phone also predicts what comes next, and nobody mistakes it for a deep thinker.',
+      'Calling an LLM “autocomplete” is therefore a useful correction to exaggerated claims—but it can become a different kind of exaggeration by hiding everything required to make the prediction.',
+    ],
+    wouldTake:[
+      'A trivial system would mostly count which word commonly follows another. It would fail when asked to translate a new sentence, repair unfamiliar code, maintain an argument across pages, or answer a question in an unusual form.',
+      'These tasks require the system to keep track of relationships across the whole context, not merely repeat the most common two- or three-word sequence.',
+    ],
+    actually:[
+      'To predict the next sentence of a court ruling, a proof, or a philosophical argument, it helps to represent what the text is about. At large scale, models develop internal patterns related to grammar, facts, concepts, and relationships—even though nobody explicitly programmed each one.',
+      '“Autocomplete” describes the final action: selecting the next token. It does not describe the depth of the calculation that produces the probabilities.',
+      'Whether those internal representations amount to genuine understanding remains debated. Both easy answers—“it is a person” and “it is only a toy”—miss something important.',
+    ],
+    visual:'autocomplete',
   },
   {
     claim:'AI will never be able to write real literature.',
     verdict:'False—or at least already very hard to defend. Producing admired prose and being an author are different questions.',
-    why:'Literature seems to require lived experience, suffering, intention, and a unique voice—things a model does not possess. Early chatbot prose was also bland and easy to spot. We may want the claim to be true because creativity feels like the last thing that is ours alone.',
-    wouldTake:'There would have to be something in great writing that cannot be learned from text: a mark of lived experience visible on the page. Expert readers would then need to distinguish human prose from machine prose reliably. But rhythm, imagery, repetition, and even the impression of a voice are patterns in the text itself—the very material models learn from.',
+    why:[
+      'Literature seems to require lived experience, suffering, intention, and a unique voice—and a model possesses none of these in the human sense. Early chatbot writing was also bland and easy to recognise.',
+      'We may want the claim to be true. Creativity feels like the last human territory, so the idea of a machine producing literature can feel like a threat to human uniqueness rather than merely a technical question.',
+    ],
+    wouldTake:[
+      'There would have to be something in great writing that cannot be learned from text: a mark of lived experience that remains visible on the page. Expert readers would then need to identify human and machine prose reliably.',
+      'But rhythm, imagery, repetition, structure, and even the impression of a distinctive voice are patterns in the text itself. Models trained on centuries of writing can learn those patterns without having the experiences that originally produced them.',
+    ],
     caseTitle:'The Goncourt affair · September 2026',
-    actually:'C’était ça ou mourir, the debut novel of Canadian-Haitian writer Thélyson Orélien, won the Prix du roman Fnac and appeared on the first lists of several major French literary prizes. After allegations of plagiarism and AI use, the Académie Goncourt removed it from its selection. Orélien denies using AI, says he drafted the novel between 2017 and 2019, and attributes its voice to Haitian and Caribbean oral traditions; his publisher supports him. As of 28 September 2026, the dispute remains unresolved. AFP checked the same passages with eight detection systems and received sharply contradictory results—from “very likely human” to “100% AI,” with other scores varying by passage. If AI wrote it, machine-produced prose impressed editors, critics, and prize juries. If Orélien wrote it, professional readers and detection tools still could not reliably distinguish his prose from a machine’s. The deeper question is therefore not only “can AI produce good text?” but “what makes a text literature?” Is meaning in the words on the page, in the person behind them, or in the relation between the two?',
+    actually:[
+      'C’était ça ou mourir, the debut novel of Canadian-Haitian writer Thélyson Orélien, was one of the literary events of autumn 2026. Published by Grasset, it won the Prix du roman Fnac and appeared on the first lists of the Goncourt, Renaudot, Femina, and Médicis. Critics praised its style.',
+      'On 21–22 September, an anonymous account posted AI-detector results and alleged that passages were machine-generated. On 25 September, the Académie Goncourt removed the novel from its selection. Allegations of plagiarism also weighed on the decision.',
+      'Orélien denies using AI. He says he drafted the book between 2017 and 2019, before ChatGPT existed, and that its voice draws on Haitian and Caribbean oral traditions. His publisher supports him. As of 28 September 2026, the dispute remains unresolved.',
+      'AFP tested the same passages with eight detection systems and obtained sharply contradictory results—from “very likely human” to “100% AI,” with other scores changing by passage.',
+      'Either possibility unsettles the myth. If AI wrote it, machine-produced prose impressed editors, critics, and prize juries. If Orélien wrote it, professional readers and detection systems still could not reliably distinguish his work from machine prose.',
+      'The deeper question is therefore not merely “can AI produce good text?” but “what makes a text literature?” Is literary meaning in the words on the page, in the person behind them, or in the relation between the two?',
+    ],
+    visual:'literature',
     sources:[
       { label:'Prix du roman Fnac', url:'https://www.fnac.com/prix-du-roman-fnac' },
       { label:'Goncourt decision', url:'https://js.livreshebdo.fr/article/lacademie-goncourt-retire-thelyson-orelien-de-sa-selection' },
@@ -228,6 +310,46 @@ const myths: Myth[] = [
     ],
   },
 ]
+
+function MythIllustration({kind}:{kind:Myth['visual']}) {
+  if (kind === 'memory') return <div className="myth-visual memory-visual" aria-label="A conversation can be reread, a separate memory note can be inserted, and training is a different later process">
+    <div className="mini-chat"><span>You: I teach theology.</span><span>AI: I’ll keep that in mind.</span></div>
+    <div className="visual-arrow">→</div><div className="context-box"><small>this chat</small><b>conversation reread</b></div>
+    <div className="sticky-note"><small>separate memory</small>teaches theology</div>
+    <div className="model-box"><small>model weights</small><b>not rewritten now</b></div>
+  </div>
+  if (kind === 'archive') return <div className="myth-visual archive-visual" aria-label="An archive retrieves an intact page while a model generates from learned patterns">
+    <div className="archive-side"><small>Archive</small><span>BOOK 1</span><span>BOOK 2</span><b>find exact page</b></div>
+    <div className="versus">≠</div>
+    <div className="pattern-side"><small>Language model</small><div>{Array.from({length:16},(_,i)=><i key={i}/>)}</div><b>generate from patterns</b></div>
+    <div className="tool-note">web search can be added as a separate tool</div>
+  </div>
+  if (kind === 'programmed') return <div className="myth-visual programmed-visual" aria-label="Engineers design a learning loop rather than writing each answer">
+    <div className="rule-card"><small>Not millions of scripts</small><code>IF question 8,492<br/>THEN answer 8,492</code></div>
+    <div className="learning-loop"><span>predict</span><b>→</b><span>check error</span><b>→</b><span>adjust</span><b>↻</b></div>
+    <p>Engineers design this learning process. Training produces the detailed behaviour.</p>
+  </div>
+  if (kind === 'one-mind') return <div className="myth-visual copies-visual" aria-label="One fixed model runs several isolated conversations">
+    <div className="shared-model">same fixed<br/><b>MODEL</b></div>
+    {[['A','My medical question'],['B','My private draft'],['C','My travel plan']].map(([id,text])=><div className={`private-chat chat-${id.toLowerCase()}`} key={id}><small>chat {id}</small>{text}</div>)}
+    <span className="no-sharing">separate contexts · no live sharing</span>
+  </div>
+  if (kind === 'tokens') return <div className="myth-visual tokens-visual" aria-label="Visible words are split into token pieces and converted into numbers">
+    <div className="human-word"><small>what we see</small><strong>unbelievable</strong></div><div className="visual-arrow">→</div>
+    <div className="machine-tokens"><small>what the model receives</small><span>un<em>421</em></span><span>believ<em>9837</em></span><span>able<em>612</em></span></div>
+    <div className="token-trap"><b>How many letters?</b><span>Tokens hide the individual letters.</span></div>
+  </div>
+  if (kind === 'autocomplete') return <div className="myth-visual autocomplete-visual" aria-label="Phone autocomplete uses short local patterns while an LLM weighs a much richer context">
+    <div className="phone-complete"><small>phone keyboard</small><p>See you ___</p><b>soon · later · there</b><span>short nearby pattern</span></div>
+    <div className="llm-complete"><small>large language model</small><div><span>whole context</span><span>grammar</span><span>facts</span><span>relationships</span><span>instructions</span></div><p>→ probabilities for the next token</p></div>
+  </div>
+  return <div className="myth-visual literature-visual" aria-label="The same page is judged through two possible stories about who wrote it">
+    <div className="book-page"><span>C’était ça<br/>ou mourir</span><i/><i/><i/></div>
+    <div className="reader-judgement"><small>readers first judge</small><b>the words on the page</b></div>
+    <div className="authorship-split"><span><b>If AI wrote it</b>praised machine prose</span><span><b>If a human wrote it</b>experts could not reliably tell</span></div>
+    <p>Good text? <b>≠</b> Human author? <b>≠</b> Literature?</p>
+  </div>
+}
 
 function MythGrid() {
   const [votes, setVotes] = useState<Record<number, 'true' | 'false'>>({})
@@ -241,12 +363,13 @@ function MythGrid() {
       </div>
       {vote&&<div className="buster-detail" aria-live="polite">
         <div className={`vote-result ${vote==='false'?'correct':'incorrect'}`}><span>{vote==='false'?'✓ Correct':'✕ Not quite'}</span><strong>{item.verdict}</strong></div>
+        <MythIllustration kind={item.visual}/>
         <div className="buster-explanations">
-          <p><b>Why it feels true</b>{item.why}</p>
-          <p><b>What it would take</b>{item.wouldTake}</p>
+          <div className="explanation-panel"><b>Why it feels true</b>{item.why.map((paragraph,index)=><p key={index}>{paragraph}</p>)}</div>
+          <div className="explanation-panel"><b>What it would take</b>{item.wouldTake.map((paragraph,index)=><p key={index}>{paragraph}</p>)}</div>
           <div className="buster-reality">
             <b>{item.caseTitle ?? 'What is actually happening'}</b>
-            <p>{item.actually}</p>
+            {item.actually.map((paragraph,index)=><p key={index}>{paragraph}</p>)}
             {item.sources&&<div className="buster-sources"><span>Sources</span>{item.sources.map(source=><a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.label}</a>)}</div>}
           </div>
         </div>

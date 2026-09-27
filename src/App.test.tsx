@@ -23,7 +23,8 @@ describe('AI illustrated story', () => {
     expect(screen.getByText(/when i share personal data/i)).toBeInTheDocument()
     fireEvent.click(screen.getAllByRole('button', { name: 'False' })[0])
     expect(screen.getByText(/correct/i)).toBeInTheDocument()
-    expect(screen.getByText(/three mechanisms are easily confused/i)).toBeInTheDocument()
+    expect(screen.getByText(/short-term context/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/conversation can be reread/i)).toBeInTheDocument()
   })
 
   it('has no automatically detectable accessibility violations', async () => {
